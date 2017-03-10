@@ -2,7 +2,6 @@
 // ReSharper disable UnusedMember.Global
 
 using System.Collections.Generic;
-using System.Drawing;
 using CUE.NET.Devices.Generic;
 using CUE.NET.Devices.Generic.Enums;
 using CUE.NET.Devices.Generic.EventArgs;

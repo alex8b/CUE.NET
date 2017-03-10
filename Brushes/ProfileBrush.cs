@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
 using CUE.NET.Devices.Generic;
 using CUE.NET.Devices.Generic.Enums;
 

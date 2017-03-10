@@ -3,7 +3,6 @@
 // ReSharper disable ReturnTypeCanBeEnumerable.Global
 
 using System.Collections.Generic;
-using System.Drawing;
 using CUE.NET.ColorCorrection;
 using CUE.NET.Devices.Generic;
 using CUE.NET.Devices.Keyboard.Enums;

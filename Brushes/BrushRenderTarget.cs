@@ -1,7 +1,6 @@
 ﻿// ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 
-using System.Drawing;
 using CUE.NET.Devices.Generic.Enums;
 using CUE.NET.Helper;
 

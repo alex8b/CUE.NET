@@ -3,7 +3,6 @@
 // ReSharper disable UnusedMember.Global
 
 using System.Diagnostics;
-using System.Drawing;
 
 namespace CUE.NET.Devices.Generic
 {
@@ -18,7 +17,7 @@ namespace CUE.NET.Devices.Generic
         /// <summary>
         /// Gets an transparent color [A: 0, R: 0, G: 0, B: 0]
         /// </summary>
-        public static CorsairColor Transparent => Color.Transparent;
+        public static CorsairColor Transparent => new CorsairColor(0,0,0,0);
 
         #endregion
 
@@ -159,23 +158,23 @@ namespace CUE.NET.Devices.Generic
             return !(color1 == color2);
         }
 
-        /// <summary>
-        /// Converts a <see cref="Color" /> to a <see cref="CorsairColor" />.
-        /// </summary>
-        /// <param name="color">The <see cref="Color"/> to convert.</param>
-        public static implicit operator CorsairColor(Color color)
-        {
-            return new CorsairColor(color.A, color.R, color.G, color.B);
-        }
+        ///// <summary>
+        ///// Converts a <see cref="Color" /> to a <see cref="CorsairColor" />.
+        ///// </summary>
+        ///// <param name="color">The <see cref="Color"/> to convert.</param>
+        //public static implicit operator CorsairColor(Color color)
+        //{
+        //    return new CorsairColor(color.A, color.R, color.G, color.B);
+        //}
 
-        /// <summary>
-        /// Converts a <see cref="CorsairColor" /> to a <see cref="Color" />.
-        /// </summary>
-        /// <param name="color">The <see cref="CorsairColor"/> to convert.</param>
-        public static implicit operator Color(CorsairColor color)
-        {
-            return Color.FromArgb(color.A, color.R, color.G, color.B);
-        }
+        ///// <summary>
+        ///// Converts a <see cref="CorsairColor" /> to a <see cref="Color" />.
+        ///// </summary>
+        ///// <param name="color">The <see cref="CorsairColor"/> to convert.</param>
+        //public static implicit operator Color(CorsairColor color)
+        //{
+        //    return Color.FromArgb(color.A, color.R, color.G, color.B);
+        //}
 
         #endregion
     }

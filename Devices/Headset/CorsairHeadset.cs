@@ -2,7 +2,6 @@
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnusedMember.Global
 
-using System.Drawing;
 using CUE.NET.Devices.Generic;
 using CUE.NET.Devices.Headset.Enums;
 

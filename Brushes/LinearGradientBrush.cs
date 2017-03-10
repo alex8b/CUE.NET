@@ -5,7 +5,6 @@
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 // ReSharper disable UnusedMember.Global
 
-using System.Drawing;
 using CUE.NET.Devices.Generic;
 using CUE.NET.Gradients;
 using CUE.NET.Helper;

@@ -1,7 +1,6 @@
 ﻿// ReSharper disable MemberCanBePrivate.Global
 
 using System;
-using System.Drawing;
 
 namespace CUE.NET.Helper
 {

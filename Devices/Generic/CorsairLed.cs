@@ -3,7 +3,6 @@
 // ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
 
 using System.Diagnostics;
-using System.Drawing;
 using CUE.NET.Devices.Generic.Enums;
 using CUE.NET.Helper;
 

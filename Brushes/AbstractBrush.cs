@@ -3,7 +3,6 @@
 // ReSharper disable VirtualMemberNeverOverridden.Global
 
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using CUE.NET.ColorCorrection;
 using CUE.NET.Devices.Generic;

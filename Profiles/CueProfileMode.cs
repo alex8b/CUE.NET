@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Xml.Linq;
 using CUE.NET.Brushes;
@@ -74,7 +73,8 @@ namespace CUE.NET.Profiles
                             return new
                             {
                                 key = (CorsairLedId)Enum.Parse(typeof(CorsairLedId), name),
-                                color = (CorsairColor)ColorTranslator.FromHtml(x.Attribute("color").Value)
+                                //color = (CorsairColor)ColorTranslator.FromHtml(x.Attribute("color").Value)
+								color = CorsairColor.Transparent
                             };
                         })
                         .ToDictionary(x => x.key, x => x.color)
