@@ -37,13 +37,18 @@ namespace CUE.NET.Native
         {
             if (_dllHandle != IntPtr.Zero) return;
 
-            // HACK: Load library at runtime to support both, x86 and x64 with one managed dll
-            string dllPath = (LoadedArchitecture = is64BitProcess ? "x64" : "x86") + "/CUESDK_2015.dll";
-            if (!File.Exists(dllPath)) throw new WrapperException($"Can't find the CUE-SDK at the expected location '{Path.GetFullPath(dllPath)}'");
+			_dllHandle = GetModuleHandle("CUESDK_2015.dll");
 
-            _dllHandle = LoadLibrary(dllPath);
+			if (_dllHandle == IntPtr.Zero)
+			{
+				// HACK: Load library at runtime to support both, x86 and x64 with one managed dll
+				string dllPath = (LoadedArchitecture = is64BitProcess ? "x64" : "x86") + "/CUESDK_2015.dll";
+				if (!File.Exists(dllPath)) throw new WrapperException($"Can't find the CUE-SDK at the expected location '{Path.GetFullPath(dllPath)}'");
 
-            _corsairSetLedsColorsPointer = (CorsairSetLedsColorsPointer)Marshal.GetDelegateForFunctionPointer(GetProcAddress(_dllHandle, "CorsairSetLedsColors"), typeof(CorsairSetLedsColorsPointer));
+				_dllHandle = LoadLibrary(dllPath);
+			}
+
+			_corsairSetLedsColorsPointer = (CorsairSetLedsColorsPointer)Marshal.GetDelegateForFunctionPointer(GetProcAddress(_dllHandle, "CorsairSetLedsColors"), typeof(CorsairSetLedsColorsPointer));
             _corsairGetDeviceCountPointer = (CorsairGetDeviceCountPointer)Marshal.GetDelegateForFunctionPointer(GetProcAddress(_dllHandle, "CorsairGetDeviceCount"), typeof(CorsairGetDeviceCountPointer));
             _corsairGetDeviceInfoPointer = (CorsairGetDeviceInfoPointer)Marshal.GetDelegateForFunctionPointer(GetProcAddress(_dllHandle, "CorsairGetDeviceInfo"), typeof(CorsairGetDeviceInfoPointer));
             _corsairGetLedPositionsPointer = (CorsairGetLedPositionsPointer)Marshal.GetDelegateForFunctionPointer(GetProcAddress(_dllHandle, "CorsairGetLedPositions"), typeof(CorsairGetLedPositionsPointer));
@@ -55,7 +60,7 @@ namespace CUE.NET.Native
             _corsairGetLastErrorPointer = (CorsairGetLastErrorPointer)Marshal.GetDelegateForFunctionPointer(GetProcAddress(_dllHandle, "CorsairGetLastError"), typeof(CorsairGetLastErrorPointer));
         }
 
-        private static void UnloadCUESDK()
+		private static void UnloadCUESDK()
         {
             if (_dllHandle == IntPtr.Zero) return;
 
@@ -64,7 +69,10 @@ namespace CUE.NET.Native
             _dllHandle = IntPtr.Zero;
         }
 
-        [DllImport("kernel32.dll")]
+		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+		public static extern IntPtr GetModuleHandle(string lpModuleName);
+
+		[DllImport("kernel32.dll")]
         private static extern IntPtr LoadLibrary(string dllToLoad);
 
         [DllImport("kernel32.dll")]
