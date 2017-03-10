@@ -9,17 +9,26 @@ using System.Xml.Linq;
 
 namespace CUE.NET.Profiles
 {
-    /// <summary>
-    /// Represents the SDK for CUE profiles.
-    /// </summary>
-    [Obsolete("Only works with CUE 1.")]
+	public static class StringExtensions
+	{
+		public static bool IsNullOrWhiteSpace(string value)
+		{
+			if (value == null) return true;
+			return string.IsNullOrEmpty(value.Trim());
+		}
+	}
+
+	/// <summary>
+	/// Represents the SDK for CUE profiles.
+	/// </summary>
+	[Obsolete("Only works with CUE 1.")]
     public static class CueProfiles
     {
         #region Constants
 
         private const string PROFILE_EXTENSION = ".prf";
-        private static readonly string PROFILE_FOLDER = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Corsair", "HID", "Profiles");
-        private static readonly string CONFIG_FILE = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Corsair", "HID", "config.cfg");
+        private static readonly string PROFILE_FOLDER = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Corsair"), "HID"), "Profiles");
+        private static readonly string CONFIG_FILE = Path.Combine(Path.Combine(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Corsair"), "HID"), "config.cfg");
 
         #endregion
 
@@ -111,7 +120,7 @@ namespace CUE.NET.Profiles
                     string name = profileNode.Element("name")?.Value;
                     string id = profileNode.Element("id")?.Value;
 
-                    if (!string.IsNullOrWhiteSpace(name) && !string.IsNullOrWhiteSpace(id) && !_profileNameMapping.ContainsKey(name)) // I think duplicates are an error case
+                    if (!StringExtensions.IsNullOrWhiteSpace(name) && !StringExtensions.IsNullOrWhiteSpace(id) && !_profileNameMapping.ContainsKey(name)) // I think duplicates are an error case
                         _profileNameMapping.Add(name, id);
                 }
             }

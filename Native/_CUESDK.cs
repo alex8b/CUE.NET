@@ -2,6 +2,7 @@
 // ReSharper disable UnusedMember.Global
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using CUE.NET.Devices.Generic.Enums;
@@ -30,12 +31,14 @@ namespace CUE.NET.Native
             LoadCUESDK();
         }
 
-        private static void LoadCUESDK()
+		static bool is64BitProcess = (IntPtr.Size == 8);
+
+		private static void LoadCUESDK()
         {
             if (_dllHandle != IntPtr.Zero) return;
 
             // HACK: Load library at runtime to support both, x86 and x64 with one managed dll
-            string dllPath = (LoadedArchitecture = Environment.Is64BitProcess ? "x64" : "x86") + "/CUESDK_2015.dll";
+            string dllPath = (LoadedArchitecture = is64BitProcess ? "x64" : "x86") + "/CUESDK_2015.dll";
             if (!File.Exists(dllPath)) throw new WrapperException($"Can't find the CUE-SDK at the expected location '{Path.GetFullPath(dllPath)}'");
 
             _dllHandle = LoadLibrary(dllPath);

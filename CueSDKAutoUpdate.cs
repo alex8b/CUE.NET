@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using CUE.NET.Devices;
 using CUE.NET.Devices.Generic.Enums;
 
@@ -16,14 +15,15 @@ namespace CUE.NET
     {
         #region Properties & Fields
 
-        private static CancellationTokenSource _updateTokenSource;
-        private static CancellationToken _updateToken;
-        private static Task _updateTask;
+        //private static CancellationTokenSource _updateTokenSource;
+        //private static CancellationToken _updateToken;
+        private static Thread _updateTask;
+	    private static volatile bool _isCancellationRequested;
 
-        /// <summary>
-        /// Gets or sets the update-frequency in seconds. (Calculate by using '1f / updates per second')
-        /// </summary>
-        public static float UpdateFrequency { get; set; } = 1f / 30f;
+		/// <summary>
+		/// Gets or sets the update-frequency in seconds. (Calculate by using '1f / updates per second')
+		/// </summary>
+		public static float UpdateFrequency { get; set; } = 1f / 30f;
 
         private static UpdateMode _updateMode = UpdateMode.Manual;
         /// <summary>
@@ -47,7 +47,7 @@ namespace CUE.NET
         /// Checks if automatic updates should occur and starts/stops the update-loop if needed.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the requested update-mode is not available.</exception>
-        private static async void CheckUpdateLoop()
+        private static void CheckUpdateLoop()
         {
             bool shouldRun;
             switch (UpdateMode)
@@ -64,22 +64,25 @@ namespace CUE.NET
 
             if (shouldRun && _updateTask == null) // Start task
             {
-                _updateTokenSource?.Dispose();
-                _updateTokenSource = new CancellationTokenSource();
-                _updateTask = Task.Factory.StartNew(UpdateLoop, (_updateToken = _updateTokenSource.Token));
-            }
+				//_updateTokenSource?.Dispose();
+				//_updateTokenSource = new CancellationTokenSource();
+	            _isCancellationRequested = false;
+				_updateTask = new Thread(UpdateLoop);
+				_updateTask.Start();
+			}
             else if (!shouldRun && _updateTask != null) // Stop task
             {
-                _updateTokenSource.Cancel();
-                await _updateTask;
-                _updateTask.Dispose();
+				//_updateTokenSource.Cancel();
+	            _isCancellationRequested = true;
+				_updateTask.Join();
+				//_updateTask.Dispose();
                 _updateTask = null;
             }
         }
 
         private static void UpdateLoop()
         {
-            while (!_updateToken.IsCancellationRequested)
+            while (!_isCancellationRequested)
             {
                 long preUpdateTicks = DateTime.Now.Ticks;
 
