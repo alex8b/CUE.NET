@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using CUE.NET.Devices.Generic.Enums;
 using CUE.NET.Exceptions;
 
@@ -16,11 +17,11 @@ namespace CUE.NET.Native
         #region Libary Management
 
         private static IntPtr _dllHandle = IntPtr.Zero;
-
-        /// <summary>
-        /// Gets the loaded architecture (x64/x86).
-        /// </summary>
-        internal static string LoadedArchitecture { get; private set; }
+	    private static string _dllSearchPath;
+		/// <summary>
+		/// Gets the loaded architecture (x64/x86).
+		/// </summary>
+		internal static string LoadedArchitecture { get; private set; }
         
         /// <summary>
         /// Reloads the SDK.
@@ -41,11 +42,28 @@ namespace CUE.NET.Native
 
 			if (_dllHandle == IntPtr.Zero)
 			{
-				// HACK: Load library at runtime to support both, x86 and x64 with one managed dll
-				string dllPath = (LoadedArchitecture = is64BitProcess ? "x64" : "x86") + "/CUESDK_2015.dll";
-				if (!File.Exists(dllPath)) throw new WrapperException($"Can't find the CUE-SDK at the expected location '{Path.GetFullPath(dllPath)}'");
+				var dllLoaded = false;
+				if (_dllSearchPath != null)
+				{
+					var dllPath = Path.Combine(_dllSearchPath, "CUESDK_2015.dll");
+					dllLoaded = TryLoadDll(dllPath);
+				}
 
-				_dllHandle = LoadLibrary(dllPath);
+				if (!dllLoaded)
+				{
+					// HACK: Load library at runtime to support both, x86 and x64 with one managed dll
+					var dllPath = (LoadedArchitecture = is64BitProcess ? "x64" : "x86") + "/CUESDK_2015.dll";
+					if (!TryLoadDll(dllPath))
+					{
+						throw new WrapperException($"Can't find the CUE SDK at the expected location '{Path.GetFullPath(dllPath)}'");
+					}
+				}
+			}
+			else
+			{
+				var fileName = new StringBuilder(255);
+				GetModuleFileName(IntPtr.Zero, fileName, fileName.Capacity);
+				_dllSearchPath = Path.GetDirectoryName(fileName.ToString());
 			}
 
 			_corsairSetLedsColorsPointer = (CorsairSetLedsColorsPointer)Marshal.GetDelegateForFunctionPointer(GetProcAddress(_dllHandle, "CorsairSetLedsColors"), typeof(CorsairSetLedsColorsPointer));
@@ -60,17 +78,32 @@ namespace CUE.NET.Native
             _corsairGetLastErrorPointer = (CorsairGetLastErrorPointer)Marshal.GetDelegateForFunctionPointer(GetProcAddress(_dllHandle, "CorsairGetLastError"), typeof(CorsairGetLastErrorPointer));
         }
 
-		private static void UnloadCUESDK()
+	    private static bool TryLoadDll(string dllPath)
+	    {
+		    if (!File.Exists(dllPath))
+		    {
+			    return false;
+		    }
+
+		    _dllHandle = LoadLibrary(dllPath);
+		    return _dllHandle != IntPtr.Zero;
+	    }
+
+	    private static void UnloadCUESDK()
         {
             if (_dllHandle == IntPtr.Zero) return;
 
             // ReSharper disable once EmptyEmbeddedStatement - DarthAffe 20.02.2016: We might need to reduce the internal reference counter more than once to set the library free
-            while (FreeLibrary(_dllHandle)) ;
+            //while (FreeLibrary(_dllHandle));
             _dllHandle = IntPtr.Zero;
         }
 
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto)]
 		public static extern IntPtr GetModuleHandle(string lpModuleName);
+
+		[DllImport("kernel32.dll", SetLastError = true)]
+		[PreserveSig]
+		public static extern uint GetModuleFileName([In]IntPtr hModule, [Out]StringBuilder lpFilename, [In][MarshalAs(UnmanagedType.U4)] int nSize);
 
 		[DllImport("kernel32.dll")]
         private static extern IntPtr LoadLibrary(string dllToLoad);
